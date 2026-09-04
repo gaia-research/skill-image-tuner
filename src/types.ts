@@ -30,6 +30,14 @@ export const DEFAULT_CONFIG: ImageConfig = {
 
 export const SAMPLE_IMAGES: ImageItem[] = [
   {
+    id: 'gaia-skill-tree',
+    name: 'Gaia Skill Tree (Yggdrasil)',
+    category: 'sample',
+    src: '/samples/gaia-skill-tree.webp',
+    defaultConfig: { zoom: 1.0, x: 0, y: 0, origin: '50% 50%' },
+    description: 'Gaia Skill Tree canonical golden Yggdrasil backdrop',
+  },
+  {
     id: 'sample-avatar',
     name: 'Sample: Avatar (Portrait)',
     category: 'sample',
