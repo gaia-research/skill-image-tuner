@@ -26,6 +26,89 @@ export function ImageCanvas({
   const isDraggingRef = useRef(false)
   const dragStartRef = useRef({ clientX: 0, clientY: 0, startX: 0, startY: 0 })
 
+  // Viewfinder edge/corner resize handles
+  const boxRef = useRef<HTMLDivElement>(null)
+  const isResizingRef = useRef<boolean>(false)
+  const resizeStartRef = useRef({ clientX: 0, clientY: 0, startZoom: 1, cx: 0, cy: 0, r0: 1 })
+
+  // Viewfinder rotation knob
+  const isRotatingRef = useRef<boolean>(false)
+  const rotStartRef = useRef({ cx: 0, cy: 0, startAngle: 0, initialRot: 0 })
+
+  const startResize = (e: React.PointerEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    isResizingRef.current = true
+    const rect = boxRef.current?.getBoundingClientRect()
+    const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
+    const cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
+    const r0 = Math.max(20, Math.hypot(e.clientX - cx, e.clientY - cy))
+
+    resizeStartRef.current = {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      startZoom: config.zoom,
+      cx,
+      cy,
+      r0,
+    }
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }
+
+  const onResizeMove = (e: React.PointerEvent) => {
+    if (!isResizingRef.current) return
+    e.stopPropagation()
+    const { cx, cy, r0, startZoom } = resizeStartRef.current
+    const r = Math.hypot(e.clientX - cx, e.clientY - cy)
+    const factor = r / r0
+    const nextZoom = Math.min(5.0, Math.max(0.1, Number((startZoom * factor).toFixed(3))))
+    onChangeConfig((prev) => ({ ...prev, zoom: nextZoom }))
+  }
+
+  const stopResize = (e: React.PointerEvent) => {
+    if (!isResizingRef.current) return
+    isResizingRef.current = false
+    try {
+      ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+    } catch {}
+  }
+
+  const startRotate = (e: React.PointerEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    isRotatingRef.current = true
+    const rect = boxRef.current?.getBoundingClientRect()
+    const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
+    const cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
+    const startAngle = (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI
+
+    rotStartRef.current = { cx, cy, startAngle, initialRot: config.rotation }
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }
+
+  const onRotateMove = (e: React.PointerEvent) => {
+    if (!isRotatingRef.current) return
+    e.stopPropagation()
+    const { cx, cy, startAngle, initialRot } = rotStartRef.current
+    const currentAngle = (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI
+    const delta = currentAngle - startAngle
+    let nextRot = Number((((initialRot + delta + 180) % 360) - 180).toFixed(1))
+    if (Math.abs(nextRot) < 2) nextRot = 0
+    if (Math.abs(nextRot - 90) < 2) nextRot = 90
+    if (Math.abs(nextRot + 90) < 2) nextRot = -90
+    if (Math.abs(Math.abs(nextRot) - 180) < 2) nextRot = 180
+
+    onChangeConfig((prev) => ({ ...prev, rotation: nextRot }))
+  }
+
+  const stopRotate = (e: React.PointerEvent) => {
+    if (!isRotatingRef.current) return
+    isRotatingRef.current = false
+    try {
+      ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+    } catch {}
+  }
+
   // Trackpad pinch gesture (wheel with ctrlKey)
   useEffect(() => {
     const el = containerRef.current
@@ -56,6 +139,85 @@ export function ImageCanvas({
       el.removeEventListener('wheel', onWheel)
     }
   }, [onChangeConfig])
+
+  // Touchscreen two-finger pinch-to-zoom and rotate
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    let touchStartDist = 0
+    let touchStartAngle = 0
+    let initialZoom = 1
+    let initialRot = 0
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault()
+        const t1 = e.touches[0]
+        const t2 = e.touches[1]
+        touchStartDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+        touchStartAngle = (Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * 180) / Math.PI
+        initialZoom = config.zoom
+        initialRot = config.rotation
+      }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && touchStartDist > 0) {
+        e.preventDefault()
+        const t1 = e.touches[0]
+        const t2 = e.touches[1]
+        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+        const angle = (Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * 180) / Math.PI
+        const scaleFactor = dist / touchStartDist
+        const deltaAngle = angle - touchStartAngle
+
+        const nextZoom = Math.min(5.0, Math.max(0.1, Number((initialZoom * scaleFactor).toFixed(3))))
+        const nextRot = Number((((initialRot + deltaAngle + 180) % 360) - 180).toFixed(1))
+
+        onChangeConfig((prev) => ({ ...prev, zoom: nextZoom, rotation: nextRot }))
+      }
+    }
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        touchStartDist = 0
+      }
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: false })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd)
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [config.rotation, config.zoom, onChangeConfig])
+
+  // Safari gesture trackpad rotate
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    let startRot = 0
+    const onGestureStart = (e: any) => {
+      e.preventDefault()
+      startRot = config.rotation
+    }
+    const onGestureChange = (e: any) => {
+      e.preventDefault()
+      const nextRot = Number((((startRot + e.rotation + 180) % 360) - 180).toFixed(1))
+      onChangeConfig((prev) => ({ ...prev, rotation: nextRot }))
+    }
+
+    el.addEventListener('gesturestart', onGestureStart)
+    el.addEventListener('gesturechange', onGestureChange)
+    return () => {
+      el.removeEventListener('gesturestart', onGestureStart)
+      el.removeEventListener('gesturechange', onGestureChange)
+    }
+  }, [config.rotation, onChangeConfig])
 
   // Drag to pan
   const onPointerDown = (e: React.PointerEvent) => {
@@ -181,7 +343,7 @@ export function ImageCanvas({
             height: '100%',
             width: 'auto',
             transformOrigin: config.origin,
-            transform: `scale(${config.zoom}) rotate(${config.rotation}deg)`,
+            transform: `scale(${config.zoom}) rotate(${config.rotation}deg) scaleX(${config.mirror ? -1 : 1})`,
             opacity: config.opacity,
             imageRendering: 'high-quality' as any,
             pointerEvents: 'none',
@@ -236,9 +398,10 @@ export function ImageCanvas({
         </div>
       </div>
 
-      {/* Viewfinder Bounding Box Overlay */}
+      {/* Viewfinder Bounding Box Overlay with Interactive Edge & Corner Resizing */}
       {showViewfinder && (
         <div
+          ref={boxRef}
           style={{
             position: 'absolute',
             left: '50%',
@@ -256,6 +419,271 @@ export function ImageCanvas({
             padding: '12px',
           }}
         >
+          {/* Top Edge Resize Strip + Center Grip */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              top: '-8px',
+              left: '16px',
+              right: '16px',
+              height: '16px',
+              cursor: 'ns-resize',
+              pointerEvents: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Drag edge to resize zoom"
+          >
+            <div
+              style={{
+                width: '36px',
+                height: '5px',
+                borderRadius: '3px',
+                background: '#5FC2D6',
+                boxShadow: '0 0 8px rgba(95,194,214,0.6)',
+                opacity: 0.75,
+              }}
+            />
+          </div>
+
+          {/* Bottom Edge Resize Strip + Center Grip */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              bottom: '-8px',
+              left: '16px',
+              right: '16px',
+              height: '16px',
+              cursor: 'ns-resize',
+              pointerEvents: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Drag edge to resize zoom"
+          >
+            <div
+              style={{
+                width: '36px',
+                height: '5px',
+                borderRadius: '3px',
+                background: '#5FC2D6',
+                boxShadow: '0 0 8px rgba(95,194,214,0.6)',
+                opacity: 0.75,
+              }}
+            />
+          </div>
+
+          {/* Left Edge Resize Strip + Center Grip */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              left: '-8px',
+              top: '16px',
+              bottom: '16px',
+              width: '16px',
+              cursor: 'ew-resize',
+              pointerEvents: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Drag edge to resize zoom"
+          >
+            <div
+              style={{
+                width: '5px',
+                height: '36px',
+                borderRadius: '3px',
+                background: '#5FC2D6',
+                boxShadow: '0 0 8px rgba(95,194,214,0.6)',
+                opacity: 0.75,
+              }}
+            />
+          </div>
+
+          {/* Right Edge Resize Strip + Center Grip */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              right: '-8px',
+              top: '16px',
+              bottom: '16px',
+              width: '16px',
+              cursor: 'ew-resize',
+              pointerEvents: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Drag edge to resize zoom"
+          >
+            <div
+              style={{
+                width: '5px',
+                height: '36px',
+                borderRadius: '3px',
+                background: '#5FC2D6',
+                boxShadow: '0 0 8px rgba(95,194,214,0.6)',
+                opacity: 0.75,
+              }}
+            />
+          </div>
+
+          {/* Top-Left Corner Handle */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              top: '-8px',
+              left: '-8px',
+              width: '16px',
+              height: '16px',
+              borderRadius: '3px',
+              background: '#0a0d14',
+              border: '2px solid #5FC2D6',
+              boxShadow: '0 0 8px #5FC2D6',
+              cursor: 'nwse-resize',
+              pointerEvents: 'auto',
+            }}
+            title="Drag corner to resize zoom"
+          />
+
+          {/* Top-Right Corner Handle */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '-8px',
+              width: '16px',
+              height: '16px',
+              borderRadius: '3px',
+              background: '#0a0d14',
+              border: '2px solid #5FC2D6',
+              boxShadow: '0 0 8px #5FC2D6',
+              cursor: 'nesw-resize',
+              pointerEvents: 'auto',
+            }}
+            title="Drag corner to resize zoom"
+          />
+
+          {/* Bottom-Left Corner Handle */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              bottom: '-8px',
+              left: '-8px',
+              width: '16px',
+              height: '16px',
+              borderRadius: '3px',
+              background: '#0a0d14',
+              border: '2px solid #5FC2D6',
+              boxShadow: '0 0 8px #5FC2D6',
+              cursor: 'nesw-resize',
+              pointerEvents: 'auto',
+            }}
+            title="Drag corner to resize zoom"
+          />
+
+          {/* Bottom-Right Corner Handle */}
+          <div
+            onPointerDown={startResize}
+            onPointerMove={onResizeMove}
+            onPointerUp={stopResize}
+            onPointerCancel={stopResize}
+            style={{
+              position: 'absolute',
+              bottom: '-8px',
+              right: '-8px',
+              width: '16px',
+              height: '16px',
+              borderRadius: '3px',
+              background: '#0a0d14',
+              border: '2px solid #5FC2D6',
+              boxShadow: '0 0 8px #5FC2D6',
+              cursor: 'nwse-resize',
+              pointerEvents: 'auto',
+            }}
+            title="Drag corner to resize zoom"
+          />
+
+          {/* Rotation Handle Knob (Top Center) */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-32px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              onPointerDown={startRotate}
+              onPointerMove={onRotateMove}
+              onPointerUp={stopRotate}
+              onPointerCancel={stopRotate}
+              style={{
+                width: '22px',
+                height: '22px',
+                borderRadius: '50%',
+                background: '#0a0d14',
+                border: '2px solid #5FC2D6',
+                boxShadow: '0 0 10px rgba(95,194,214,0.7)',
+                cursor: 'grab',
+                pointerEvents: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#5FC2D6',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                userSelect: 'none',
+              }}
+              title="Drag to rotate image angle"
+            >
+              ↻
+            </div>
+            <div
+              style={{
+                width: '1.5px',
+                height: '10px',
+                background: '#5FC2D6',
+                opacity: 0.8,
+              }}
+            />
+          </div>
+
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#5FC2D6', fontSize: '14px', fontWeight: 'bold' }}>┌</span>
             <span
@@ -269,7 +697,7 @@ export function ImageCanvas({
                 border: '1px solid rgba(95,194,214,0.3)',
               }}
             >
-              ✥ VIEWPORT FRAME · Drag to Pan · Pinch to Zoom
+              ✥ VIEWPORT FRAME · Drag Edges to Resize · ↻ Rotate · {config.mirror ? '🪞 Mirrored' : 'Standard'}
             </span>
             <span style={{ color: '#5FC2D6', fontSize: '14px', fontWeight: 'bold' }}>┐</span>
           </div>
@@ -285,7 +713,7 @@ export function ImageCanvas({
                 fontFamily: 'monospace',
               }}
             >
-              Zoom: {config.zoom.toFixed(2)}× · X: {config.x > 0 ? '+' : ''}{config.x.toFixed(2)}vh · Y: {config.y > 0 ? '+' : ''}{config.y.toFixed(2)}vh
+              Zoom: {config.zoom.toFixed(2)}× · X: {config.x > 0 ? '+' : ''}{config.x.toFixed(2)}vh · Y: {config.y > 0 ? '+' : ''}{config.y.toFixed(2)}vh · Rot: {config.rotation.toFixed(1)}° {config.mirror ? '· ⇄ Mirrored' : ''}
             </span>
             <span style={{ color: '#5FC2D6', fontSize: '14px', fontWeight: 'bold' }}>┘</span>
           </div>
