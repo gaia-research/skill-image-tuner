@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121624"/>
+      <stop offset="100%" stop-color="#0a0c14"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5FC2D6"/>
+      <stop offset="100%" stop-color="#8A5FE6"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD24A"/>
+      <stop offset="100%" stop-color="#DB6F07"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="500" fill="url(#bg)" rx="16"/>
+  <!-- Head & Hair Silhouette -->
+  <circle cx="200" cy="180" r="70" fill="url(#cyan)" opacity="0.9"/>
+  <!-- Eyes -->
+  <circle cx="180" cy="175" r="8" fill="#FFFFFF"/>
+  <circle cx="220" cy="175" r="8" fill="#FFFFFF"/>
+  <circle cx="182" cy="175" r="4" fill="#121624"/>
+  <circle cx="222" cy="175" r="4" fill="#121624"/>
+  <!-- Shoulders & Body -->
+  <path d="M120 380 C120 280 280 280 280 380 Z" fill="url(#cyan)" opacity="0.8"/>
+  <path d="M90 480 C90 360 310 360 310 480 Z" fill="url(#gold)" opacity="0.6"/>
+  <!-- Decorative Framing Lines -->
+  <circle cx="200" cy="180" r="110" stroke="#5FC2D6" stroke-width="1.5" stroke-dasharray="6 6" fill="none" opacity="0.4"/>
+  <text x="200" y="440" font-family="monospace" font-size="14" fill="#5FC2D6" text-anchor="middle" letter-spacing="2">SAMPLE AVATAR</text>
+</svg>
