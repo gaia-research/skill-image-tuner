@@ -72,15 +72,17 @@ export function TunerHUD({
 
   // Code snippets
   const getCodeSnippet = (): string => {
+    const mirrorCss = config.mirror ? ' scaleX(-1)' : ''
+    const mirrorTailwind = config.mirror ? ' -scale-x-100' : ''
     switch (codeTab) {
       case 'json':
-        return `{\n  "zoom": ${config.zoom.toFixed(2)},\n  "x": ${config.x.toFixed(2)},\n  "y": ${config.y.toFixed(2)},\n  "origin": "${config.origin}",\n  "rotation": ${config.rotation.toFixed(1)}\n}`
+        return `{\n  "zoom": ${config.zoom.toFixed(2)},\n  "x": ${config.x.toFixed(2)},\n  "y": ${config.y.toFixed(2)},\n  "origin": "${config.origin}",\n  "rotation": ${config.rotation.toFixed(1)},\n  "mirror": ${config.mirror}\n}`
       case 'css':
-        return `/* Framing CSS */\ntransform-origin: ${config.origin};\ntransform: translate(calc(-50% + ${config.x.toFixed(2)}vh), ${config.y.toFixed(2)}vh) scale(${config.zoom.toFixed(2)}) rotate(${config.rotation.toFixed(1)}deg);`
+        return `/* Framing CSS */\ntransform-origin: ${config.origin};\ntransform: translate(calc(-50% + ${config.x.toFixed(2)}vh), ${config.y.toFixed(2)}vh) scale(${config.zoom.toFixed(2)}) rotate(${config.rotation.toFixed(1)}deg)${mirrorCss};`
       case 'react':
-        return `style={{\n  transformOrigin: '${config.origin}',\n  transform: \`translate(calc(-50% + \${${config.x.toFixed(2)}}vh), \${${config.y.toFixed(2)}}vh) scale(\${${config.zoom.toFixed(2)}}) rotate(\${${config.rotation.toFixed(1)}}deg)\`,\n}}`
+        return `style={{\n  transformOrigin: '${config.origin}',\n  transform: \`translate(calc(-50% + \${${config.x.toFixed(2)}}vh), \${${config.y.toFixed(2)}}vh) scale(\${${config.zoom.toFixed(2)}}) rotate(\${${config.rotation.toFixed(1)}}deg)${mirrorCss}\`,\n}}`
       case 'tailwind':
-        return `origin-[${config.origin.replace(' ', '_')}] translate-x-[${config.x.toFixed(2)}vh] translate-y-[${config.y.toFixed(2)}vh] scale-[${config.zoom.toFixed(2)}] rotate-[${config.rotation.toFixed(1)}deg]`
+        return `origin-[${config.origin.replace(' ', '_')}] translate-x-[${config.x.toFixed(2)}vh] translate-y-[${config.y.toFixed(2)}vh] scale-[${config.zoom.toFixed(2)}] rotate-[${config.rotation.toFixed(1)}deg]${mirrorTailwind}`
       default:
         return ''
     }
@@ -200,8 +202,8 @@ export function TunerHUD({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '6px',
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              gap: '4px',
               background: 'rgba(0,0,0,0.35)',
               padding: '8px',
               borderRadius: '6px',
@@ -211,26 +213,32 @@ export function TunerHUD({
           >
             <div>
               <div style={{ fontSize: '8px', opacity: 0.6, letterSpacing: '0.06em' }}>ZOOM</div>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#5FC2D6' }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#5FC2D6' }}>
                 {config.zoom.toFixed(2)}×
               </div>
             </div>
             <div>
               <div style={{ fontSize: '8px', opacity: 0.6, letterSpacing: '0.06em' }}>X (VH)</div>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#fff' }}>
                 {config.x > 0 ? '+' : ''}{config.x.toFixed(2)}
               </div>
             </div>
             <div>
               <div style={{ fontSize: '8px', opacity: 0.6, letterSpacing: '0.06em' }}>Y (VH)</div>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#fff' }}>
                 {config.y > 0 ? '+' : ''}{config.y.toFixed(2)}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '8px', opacity: 0.6, letterSpacing: '0.06em' }}>ORIGIN</div>
-              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#A58AE0', marginTop: '2px' }}>
-                {config.origin}
+              <div style={{ fontSize: '8px', opacity: 0.6, letterSpacing: '0.06em' }}>ROT</div>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD24A' }}>
+                {config.rotation.toFixed(0)}°
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '8px', opacity: 0.6, letterSpacing: '0.06em' }}>MIRROR</div>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', color: config.mirror ? '#2ecc71' : '#888' }}>
+                {config.mirror ? 'ON' : 'OFF'}
               </div>
             </div>
           </div>
@@ -391,8 +399,80 @@ export function TunerHUD({
             </div>
           </div>
 
-          {/* Toggles (Drag, Viewfinder, Grid) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+          {/* Rotation Angle Slider & Steppers */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
+              <span style={{ opacity: 0.8 }}>Rotation Angle</span>
+              <span style={{ color: '#FFD24A', fontWeight: 'bold' }}>{config.rotation.toFixed(1)}°</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: Number(((p.rotation - 15 + 180) % 360 - 180).toFixed(1)) }))}
+                style={btnStyle}
+                title="Rotate counter-clockwise 15°"
+              >
+                -15°
+              </button>
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={config.rotation}
+                onChange={(e) => onChangeConfig((p) => ({ ...p, rotation: parseFloat(e.target.value) }))}
+                style={{ flex: 1, accentColor: '#FFD24A', cursor: 'pointer' }}
+              />
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: Number(((p.rotation + 15 + 180) % 360 - 180).toFixed(1)) }))}
+                style={btnStyle}
+                title="Rotate clockwise 15°"
+              >
+                +15°
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: '3px' }}>
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: Number(((p.rotation - 45 + 180) % 360 - 180).toFixed(1)) }))}
+                style={{ ...btnStyle, flex: 1, fontSize: '9px', padding: '3px 2px' }}
+              >
+                -45°
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: Number(((p.rotation - 1 + 180) % 360 - 180).toFixed(1)) }))}
+                style={{ ...btnStyle, flex: 1, fontSize: '9px', padding: '3px 2px' }}
+              >
+                -1°
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: 0 }))}
+                style={{ ...btnStyle, flex: 1, fontSize: '9px', padding: '3px 2px', color: '#FFD24A' }}
+              >
+                0°
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: Number(((p.rotation + 1 + 180) % 360 - 180).toFixed(1)) }))}
+                style={{ ...btnStyle, flex: 1, fontSize: '9px', padding: '3px 2px' }}
+              >
+                +1°
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeConfig((p) => ({ ...p, rotation: Number(((p.rotation + 45 + 180) % 360 - 180).toFixed(1)) }))}
+                style={{ ...btnStyle, flex: 1, fontSize: '9px', padding: '3px 2px' }}
+              >
+                +45°
+              </button>
+            </div>
+          </div>
+
+          {/* Toggles (Drag, Viewfinder, Grid, Mirror) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px' }}>
             <button
               type="button"
               onClick={onToggleDragMode}
@@ -406,7 +486,7 @@ export function TunerHUD({
                 fontWeight: dragMode ? 'bold' : 'normal',
               }}
             >
-              ✥ Drag: {dragMode ? 'ON' : 'OFF'}
+              ✥ Drag
             </button>
             <button
               type="button"
@@ -420,7 +500,7 @@ export function TunerHUD({
                 color: showViewfinder ? '#fff' : '#888',
               }}
             >
-              ⛶ Box: {showViewfinder ? 'ON' : 'OFF'}
+              ⛶ Box
             </button>
             <button
               type="button"
@@ -434,7 +514,23 @@ export function TunerHUD({
                 color: showGrid ? '#fff' : '#888',
               }}
             >
-              # Grid: {showGrid ? 'ON' : 'OFF'}
+              # Grid
+            </button>
+            <button
+              type="button"
+              onClick={() => onChangeConfig((p) => ({ ...p, mirror: !p.mirror }))}
+              style={{
+                ...btnStyle,
+                fontSize: '10px',
+                padding: '5px 2px',
+                background: config.mirror ? 'rgba(46, 204, 113, 0.25)' : 'rgba(255,255,255,0.06)',
+                borderColor: config.mirror ? '#2ecc71' : 'rgba(255,255,255,0.15)',
+                color: config.mirror ? '#2ecc71' : '#aaa',
+                fontWeight: config.mirror ? 'bold' : 'normal',
+              }}
+              title="Flip horizontally (scaleX(-1))"
+            >
+              🪞 {config.mirror ? 'Flipped' : 'Mirror'}
             </button>
           </div>
 

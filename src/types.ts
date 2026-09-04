@@ -4,6 +4,7 @@ export interface ImageConfig {
   y: number // Vertical offset in vh
   origin: string // CSS transform-origin, e.g. '49% 27%' or '50% 50%'
   rotation: number // Degrees (-180 to +180)
+  mirror: boolean // Horizontal flip (scaleX(-1))
   opacity: number // 0.0 to 1.0
 }
 
@@ -23,6 +24,7 @@ export const DEFAULT_CONFIG: ImageConfig = {
   y: 0,
   origin: '50% 50%',
   rotation: 0,
+  mirror: false,
   opacity: 1.0,
 }
 

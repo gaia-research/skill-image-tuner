@@ -59,18 +59,25 @@ Originally built to frame the flagship **Lucy v5** delivery assets (`Zero · Hea
 
 - **✥ Interactive Drag to Pan**: Click and drag directly on the canvas to offset X and Y with live `vh` / pixel readouts.
 - **🔍 Trackpad Pinch-to-Zoom**: Native desktop trackpad pinch gesture zoom (via `ctrlKey` wheel event filtering) that scales the image around its configured transform origin.
+- **↔️ Drag-Edge Resizing**: Grab and drag any edge or corner handle of the viewfinder box to quickly scale the image zoom up or down.
+- **↻ Gesture & Knob Rotation**:
+  - **Touchscreens**: Fluid two-finger pinch-and-rotate gestures.
+  - **Trackpads**: Native gesture rotation support (`gesturechange`).
+  - **Viewfinder Knob**: Dedicated `↻` rotation handle attached above the viewfinder box with intelligent snapping (`0°`, `±90°`, `±180°`).
+  - **HUD Steppers**: Fine-tuning with `±1°`, `±15°`, and `±45°` step buttons and an angle range slider (`-180°` to `+180°`).
+- **🪞 Horizontal Mirror (Flip)**: Instant horizontal flipping via `M` shortcut or HUD `🪞 Mirror` button (`scaleX(-1)`).
 - **🎯 Visual Transform Origin Picker**: Click anywhere on the image to pin the exact CSS `transform-origin` (e.g. anchoring directly to Lucy's eye/face at `49% 27%`).
 - **🎛️ Floating Draggable HUD**: A collapsible, translucent glass HUD window that can be moved anywhere on screen without blocking your canvas view.
 - **📐 Viewfinder & Composition Guides**: Toggleable dashed bounding box with corner brackets, live coordinate chips, and a rule-of-thirds grid.
 - **🖼️ Universal Image Selector**:
-  - Built-in presets: Lucy Heaven, Lucy Zero, Lucy Hell, Lucy Ultra, and Skill Heaven Logo.
+  - Built-in presets: Lucy Heaven, Lucy Zero, Lucy Hell, Lucy Ultra, Wings pairs, and Skill Heaven Logo.
   - **Upload Local Files**: Drag and drop or browse any PNG, WebP, JPG, or SVG from your machine.
   - **Load from Web URL**: Paste any public image link to tune immediately.
 - **📋 Multi-Format Export**: One-click code generation for:
-  - **JSON Config**: `{ zoom: 1.59, x: -3.25, y: -1.63, origin: "49% 27%" }`
-  - **CSS**: `transform-origin: 49% 27%; transform: translate(...) scale(1.59);`
+  - **JSON Config**: `{ "zoom": 1.59, "x": -3.25, "y": -1.63, "origin": "49% 27%", "rotation": 0.0, "mirror": false }`
+  - **CSS**: `transform-origin: 49% 27%; transform: translate(...) scale(1.59) rotate(0deg) scaleX(-1);`
   - **React Inline Style**: `style={{ transformOrigin: '49% 27%', transform: ... }}`
-  - **Tailwind Utility Classes**: Arbitrary value classes for zero-runtime styling.
+  - **Tailwind Utility Classes**: Arbitrary value classes for zero-runtime styling (`-scale-x-100`).
 
 ---
 
@@ -95,6 +102,7 @@ Jump directly into specific presets and view modes:
 - `?image=lucy-ultra` — Open Lucy Ultra preset
 - `?image=lucy-hell` — Open Lucy Hell preset
 - `?image=lucy-zero` — Open Lucy Zero preset
+- `?image=wings-heaven-pair` — Open Wings Heaven pair preset
 - `?grid=1` — Enable rule-of-thirds composition grid by default
 - `?hud=0` — Hide HUD on load (clean view mode)
 
@@ -105,7 +113,9 @@ Jump directly into specific presets and view modes:
 | Action | Shortcut / Gesture |
 | :--- | :--- |
 | **Pan Image** | Click & drag on canvas |
-| **Zoom Image** | Trackpad pinch gesture (or Zoom slider) |
+| **Zoom Image** | Trackpad pinch gesture, Zoom slider, or **drag box edges/corners** |
+| **Rotate Image** | Two-finger touch rotate, trackpad gesture, **drag `↻` knob**, or rotation slider |
+| **Mirror / Flip** | Press `M` or click `🪞 Mirror` in HUD |
 | **Set Transform Origin** | Click `🎯 Pick` in HUD, then click on the target feature |
 | **Toggle HUD** | `Cmd + Shift + L` (Mac) / `Ctrl + Shift + L` (Win) |
 | **Toggle Viewfinder** | Press `V` |
