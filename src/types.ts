@@ -28,6 +28,46 @@ export const DEFAULT_CONFIG: ImageConfig = {
 
 export const SAMPLE_IMAGES: ImageItem[] = [
   {
+    id: 'wings-heaven-pair',
+    name: 'Wings: Heaven Pair',
+    category: 'sample',
+    src: '/samples/lucy-wing-heaven-pair.webp',
+    defaultConfig: { zoom: 1.0, x: 0, y: 0, origin: '50% 50%' },
+    description: 'Symmetric Heaven wing pair for Lucy',
+  },
+  {
+    id: 'wings-ultra-pair',
+    name: 'Wings: Ultra Pair',
+    category: 'sample',
+    src: '/samples/lucy-wing-ultra-pair.webp',
+    defaultConfig: { zoom: 1.0, x: 0, y: 0, origin: '50% 50%' },
+    description: 'Symmetric Ultra wing pair for Lucy',
+  },
+  {
+    id: 'wings-hell-pair',
+    name: 'Wings: Hell Pair',
+    category: 'sample',
+    src: '/samples/lucy-wing-hell-pair.webp',
+    defaultConfig: { zoom: 1.0, x: 0, y: 0, origin: '50% 50%' },
+    description: 'Symmetric Hell wing pair for Lucy',
+  },
+  {
+    id: 'wing-left',
+    name: 'Wing: Left (Commission)',
+    category: 'sample',
+    src: '/samples/wing-left.png',
+    defaultConfig: { zoom: 1.0, x: -5.0, y: 0, origin: 'bottom center' },
+    description: 'Hero commission single left wing',
+  },
+  {
+    id: 'wing-right',
+    name: 'Wing: Right (Commission)',
+    category: 'sample',
+    src: '/samples/wing-right.png',
+    defaultConfig: { zoom: 1.0, x: 5.0, y: 0, origin: 'bottom center' },
+    description: 'Hero commission single right wing',
+  },
+  {
     id: 'lucy-heaven',
     name: 'Lucy: Heaven (V5)',
     category: 'sample',
