@@ -14,7 +14,7 @@ export function App() {
       const p = new URLSearchParams(window.location.search).get('image')
       if (p && SAMPLE_IMAGES.some((s) => s.id === p)) return p
     } catch {}
-    return 'lucy-heaven'
+    return SAMPLE_IMAGES[0]?.id || 'sample-avatar'
   })
 
   // Configurations map by image ID

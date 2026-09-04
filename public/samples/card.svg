@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#151928"/>
+      <stop offset="100%" stop-color="#0a0c14"/>
+    </linearGradient>
+    <linearGradient id="cardAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5FC2D6"/>
+      <stop offset="100%" stop-color="#FFD24A"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="340" fill="url(#cardBg)" rx="16" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <rect x="30" y="30" width="540" height="280" fill="none" stroke="rgba(95,194,214,0.3)" stroke-width="1.5" stroke-dasharray="8 8" rx="8"/>
+  <circle cx="300" cy="140" r="48" fill="url(#cardAccent)" opacity="0.8"/>
+  <text x="300" y="230" font-family="monospace" font-size="18" font-weight="bold" fill="#EAE8E3" text-anchor="middle" letter-spacing="4">HERO BANNER 16:9</text>
+  <text x="300" y="260" font-family="monospace" font-size="12" fill="#5FC2D6" text-anchor="middle" letter-spacing="2">600 × 340 · UNIVERSAL PRESET</text>
+</svg>

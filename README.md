@@ -12,46 +12,9 @@
 
 ![Skill Image Tuner Overview](docs/screenshots/overview.png)
 
-`skill-image-tuner` is an interactive dev-tool HUD and standalone visual staging harness for positioning, scaling, anchoring, and framing images with sub-pixel precision. It turns trial-and-error CSS adjustments into a fluid, visual, drag-and-pinch canvas.
+`skill-image-tuner` is a lightweight, zero-dependency dev-tool HUD and standalone visual staging harness for positioning, scaling, anchoring, and framing images with sub-pixel precision. It turns trial-and-error CSS adjustments into a fluid, visual, drag-and-pinch canvas.
 
-Originally built to frame the flagship **Lucy v5** delivery assets (`Zero · Heaven · Hell · Ultra`) for the Skill Heaven website, `skill-image-tuner` generalizes those mechanics so you can frame **any image** and instantly copy production-ready CSS, React styles, JSON configurations, or Tailwind classes.
-
----
-
-## 📸 Showcase: Framing Lucy Across Motifs
-
-### Lucy: Heaven (V5) · Convergent Cyan
-*Face-anchored framing at `49% 27%`, `zoom: 1.59×`, `x: -3.25vh`, `y: -1.63vh`*
-
-![Lucy Heaven](docs/screenshots/overview.png)
-
----
-
-### Lucy: Ultra (V5) · Entropy Apex
-*Twin-blade halo framing at `45% 24%`, `zoom: 1.40×`, `x: +3.20vh`, `y: +3.00vh`*
-
-![Lucy Ultra](docs/screenshots/lucy-ultra-tuned.png)
-
----
-
-### Lucy: Hell (V5) · Exploratory Crimson
-*Katana framing at `47% 30%`, `zoom: 1.50×`, `x: +1.80vh`, `y: +2.00vh`*
-
-![Lucy Hell](docs/screenshots/lucy-hell-tuned.png)
-
----
-
-### Lucy: Zero (V5) · Katana Floor
-*Monochrome floor framing at `47% 30%`, `zoom: 1.50×`, `x: +1.20vh`, `y: +2.00vh`*
-
-![Lucy Zero](docs/screenshots/lucy-zero-tuned.png)
-
----
-
-### Rule-of-Thirds Grid Overlay
-*Activate `# Grid: ON` to align facial features, eyes, and action lines with compositional guides:*
-
-![Lucy Heaven with Grid](docs/screenshots/lucy-heaven-grid.png)
+The repository is strictly **minimal and self-contained** (using only lightweight vector SVG placeholders)—upload or drop in your own assets, or paste image URLs from the web, and instantly copy production-ready CSS, React styles, JSON configurations, or Tailwind classes.
 
 ---
 
@@ -66,18 +29,18 @@ Originally built to frame the flagship **Lucy v5** delivery assets (`Zero · Hea
   - **Viewfinder Knob**: Dedicated `↻` rotation handle attached above the viewfinder box with intelligent snapping (`0°`, `±90°`, `±180°`).
   - **HUD Steppers**: Fine-tuning with `±1°`, `±15°`, and `±45°` step buttons and an angle range slider (`-180°` to `+180°`).
 - **🪞 Horizontal Mirror (Flip)**: Instant horizontal flipping via `M` shortcut or HUD `🪞 Mirror` button (`scaleX(-1)`).
-- **🎯 Visual Transform Origin Picker**: Click anywhere on the image to pin the exact CSS `transform-origin` (e.g. anchoring directly to Lucy's eye/face at `49% 27%`).
+- **🎯 Visual Transform Origin Picker**: Click anywhere on the image to pin the exact CSS `transform-origin` (e.g. anchoring directly to a character's eye/face at `50% 36%`).
 - **🎛️ Floating Draggable HUD**: A collapsible, translucent glass HUD window that can be moved anywhere on screen without blocking your canvas view.
 - **📐 Viewfinder & Composition Guides**: Toggleable dashed bounding box with corner brackets, live coordinate chips, and a rule-of-thirds grid.
 - **🖼️ Universal Image Selector**:
-  - Built-in presets: Lucy Heaven, Lucy Zero, Lucy Hell, Lucy Ultra, Wings pairs, and Skill Heaven Logo.
+  - Built-in lightweight SVG presets: Portrait Avatar, Landscape 16:9 Card, and Geometric Emblem Badge.
   - **Upload Local Files**: Drag and drop or browse any PNG, WebP, JPG, or SVG from your machine.
   - **Load from Web URL**: Paste any public image link to tune immediately.
 - **📋 Multi-Format Export**: One-click code generation for:
-  - **JSON Config**: `{ "zoom": 1.59, "x": -3.25, "y": -1.63, "origin": "49% 27%", "rotation": 0.0, "mirror": false }`
-  - **CSS**: `transform-origin: 49% 27%; transform: translate(...) scale(1.59) rotate(0deg) scaleX(-1);`
-  - **React Inline Style**: `style={{ transformOrigin: '49% 27%', transform: ... }}`
-  - **Tailwind Utility Classes**: Arbitrary value classes for zero-runtime styling (`-scale-x-100`).
+  - **JSON Config**: `{ "zoom": 1.00, "x": 0.00, "y": 0.00, "origin": "50% 36%", "rotation": 0.0, "mirror": false }`
+  - **CSS**: `transform-origin: 50% 36%; transform: translate(...) scale(1.00) rotate(0deg);`
+  - **React Inline Style**: `style={{ transformOrigin: '50% 36%', transform: ... }}`
+  - **Tailwind Utility Classes**: Arbitrary value classes for zero-runtime styling.
 
 ---
 
@@ -98,11 +61,9 @@ Open [http://localhost:5188](http://localhost:5188) in your browser.
 
 Jump directly into specific presets and view modes:
 
-- `?image=lucy-heaven` — Open Lucy Heaven preset
-- `?image=lucy-ultra` — Open Lucy Ultra preset
-- `?image=lucy-hell` — Open Lucy Hell preset
-- `?image=lucy-zero` — Open Lucy Zero preset
-- `?image=wings-heaven-pair` — Open Wings Heaven pair preset
+- `?image=sample-avatar` — Open minimal Portrait Avatar preset
+- `?image=sample-card` — Open minimal 16:9 Landscape Card preset
+- `?image=sample-badge` — Open minimal Geometric Badge preset
 - `?grid=1` — Enable rule-of-thirds composition grid by default
 - `?hud=0` — Hide HUD on load (clean view mode)
 
