@@ -96,6 +96,10 @@ export function App() {
       if (e.code === 'KeyV' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
         setShowViewfinder((v) => !v)
       }
+      // M for mirror flip
+      if (e.code === 'KeyM' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+        updateConfig((p) => ({ ...p, mirror: !p.mirror }))
+      }
     }
 
     window.addEventListener('keydown', onKeyDown)
@@ -184,10 +188,14 @@ export function App() {
           <span className="sit-dot">·</span>
           <span>Offset: <strong>{currentConfig.x > 0 ? '+' : ''}{currentConfig.x.toFixed(2)}vh, {currentConfig.y > 0 ? '+' : ''}{currentConfig.y.toFixed(2)}vh</strong></span>
           <span className="sit-dot">·</span>
+          <span>Rot: <strong>{currentConfig.rotation.toFixed(1)}°</strong></span>
+          <span className="sit-dot">·</span>
+          <span>Mirror: <strong>{currentConfig.mirror ? 'ON' : 'OFF'}</strong></span>
+          <span className="sit-dot">·</span>
           <span>Origin: <strong>{currentConfig.origin}</strong></span>
         </div>
         <div className="sit-status-right">
-          <span>Trackpad pinch to zoom · Drag to pan · Double-click to reset · Cmd+Shift+L toggle HUD</span>
+          <span>Drag edges to resize · ↻ knob / 2-finger rotate · Pinch zoom · M mirror · Cmd+Shift+L toggle HUD</span>
         </div>
       </footer>
     </div>
