@@ -3,6 +3,26 @@
   "version": "1.0.0",
   "description": "Universal interactive image positioning, scaling, and framing tuner HUD",
   "type": "module",
+  "bin": {
+    "image-tuner": "./bin/image-tuner.js",
+    "skill-image-tuner": "./bin/image-tuner.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gaia-research/skill-image-tuner.git"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "src",
+    "image_tuner.py",
+    "SKILL.md",
+    "install.sh",
+    "powered-by-gaia.svg",
+    "README.md",
+    "LICENSE",
+    "CITATION.cff"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

@@ -30,7 +30,13 @@ export function App() {
   })
 
   // Display toggles
-  const [showViewfinder, setShowViewfinder] = useState(true)
+  const [showViewfinder, setShowViewfinder] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('viewfinder') !== '0'
+    } catch {
+      return true
+    }
+  })
   const [showGrid, setShowGrid] = useState(() => {
     try {
       return new URLSearchParams(window.location.search).get('grid') === '1'
@@ -72,8 +78,16 @@ export function App() {
     }))
   }, [activeImage, updateConfig])
 
-  const handleAddCustomImage = (item: ImageItem) => {
-    setImages((prev) => [...prev, item])
+  const handleAddCustomImage = useCallback((item: ImageItem) => {
+    setImages((prev) => {
+      const exists = prev.findIndex((p) => p.id === item.id)
+      if (exists >= 0) {
+        const next = [...prev]
+        next[exists] = item
+        return next
+      }
+      return [...prev, item]
+    })
     setConfigs((prev) => ({
       ...prev,
       [item.id]: {
@@ -82,7 +96,44 @@ export function App() {
       },
     }))
     setActiveImageId(item.id)
-  }
+  }, [])
+
+  // Check URL parameters for custom image source or tuning overrides on load
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const src = params.get('src') || params.get('url')
+      const imgParam = params.get('image')
+      const targetSrc = src || (imgParam && !SAMPLE_IMAGES.some((s) => s.id === imgParam) ? imgParam : null)
+
+      if (targetSrc) {
+        const name = params.get('name') || targetSrc.split('/').pop()?.split('?')[0] || 'Custom Image'
+        const customItem: ImageItem = {
+          id: 'url-param-image',
+          name,
+          category: 'custom',
+          src: targetSrc,
+          defaultConfig: {
+            zoom: params.has('zoom') ? parseFloat(params.get('zoom')!) : 1.0,
+            x: params.has('x') ? parseFloat(params.get('x')!) : 0.0,
+            y: params.has('y') ? parseFloat(params.get('y')!) : 0.0,
+            origin: params.get('origin') || '50% 50%',
+            rotation: params.has('rot')
+              ? parseFloat(params.get('rot')!)
+              : params.has('rotation')
+              ? parseFloat(params.get('rotation')!)
+              : 0.0,
+            mirror: params.get('mirror') === '1' || params.get('mirror') === 'true',
+            opacity: params.has('opacity') ? parseFloat(params.get('opacity')!) : 1.0,
+          },
+          description: `Loaded from URL parameter: ${targetSrc}`,
+        }
+        handleAddCustomImage(customItem)
+      }
+    } catch (e) {
+      console.error('Failed to parse URL parameters:', e)
+    }
+  }, [handleAddCustomImage])
 
   // Global keyboard shortcuts
   useEffect(() => {

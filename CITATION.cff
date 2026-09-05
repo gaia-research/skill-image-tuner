@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use skill-image-tuner in research, tools, design systems, or agent architectures, cite it as follows."
+title: "image-tuner: universal interactive image positioning, scaling, and framing tuner HUD"
+abstract: >-
+  skill-image-tuner provides an interactive visual staging canvas and HUD to
+  eliminate trial-and-error CSS image positioning, scaling, anchoring, and
+  framing. Supports pan, pinch-to-zoom, knob/gesture rotation, horizontal
+  mirroring, visual transform-origin picking, composition grids, and live
+  multi-format code export (CSS, React, Tailwind, JSON). Ships as a universal
+  agent skill (SKILL.md) and standalone tool compatible with Claude Code, pi,
+  Codex, Cursor, Gemini CLI, and Windsurf.
+type: software
+license: MIT
+repository-code: "https://github.com/gaia-research/skill-image-tuner"
+url: "https://github.com/gaia-research/skill-image-tuner#readme"
+keywords:
+  - image-tuner
+  - image-framing
+  - transform-origin
+  - css-transform
+  - react-canvas
+  - tailwind
+  - visual-hud
+  - agent-skill
+  - claude-code
+  - pi-coding-agent
+  - codex
+  - cursor
+  - developer-tools
+authors:
+  - name: "Gaia Research"
+    website: "https://gaiaskilltree.com"
