@@ -142,7 +142,10 @@ mkdir -p "$INSTALL_DIR"
 # ---------------------------------------------------------------------------
 # Fetch or Copy Files
 # ---------------------------------------------------------------------------
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
+SCRIPT_DIR=""
+if [ -n "${BASH_SOURCE[0]:-}" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
+fi
 IS_LOCAL=false
 if [ -n "$SCRIPT_DIR" ] && [ -f "${SCRIPT_DIR}/SKILL.md" ] && [ -f "${SCRIPT_DIR}/image_tuner.py" ]; then
   IS_LOCAL=true
